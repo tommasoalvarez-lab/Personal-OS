@@ -1,26 +1,51 @@
 import { Screen, Grid, Card } from "@/components/Grid";
+import { shiftISO, todayISO, compareISO } from "@/lib/date";
+import { sortTasks } from "@/lib/tasks";
 
-export default function ReviewScreen() {
+// Nessun dato nuovo, nessuna chiamata al modello: solo le altre schede
+// rilette insieme. Il riassunto automatico è un'estensione della Parte 9.
+export default function ReviewScreen({ tasks }) {
+  const settimanaFa = shiftISO(todayISO(), -6);
+
+  const chiusi = tasks
+    .filter((t) => t.dataCompletamento && compareISO(t.dataCompletamento.slice(0, 10), settimanaFa) >= 0)
+    .sort((a, b) => compareISO(b.dataCompletamento, a.dataCompletamento));
+
+  const slittati = tasks.filter((t) => t.fascia === "ritardo" && !t.dataCompletamento);
+
+  const aperti = tasks.filter((t) => !t.dataCompletamento);
+  const priorita = sortTasks(aperti).slice(0, 3);
+
   return (
     <Screen>
       <Grid>
         <Card title="Chiuso questa settimana" span={6}>
           <div className="review-list">
-            <div className="review-item">✓ Preventivo Studio Bellini inviato</div>
-            <div className="review-item">✓ Bolletta luce pagata</div>
-            <div className="review-item">✓ Chiamata con commercialista fatta</div>
+            {chiusi.length === 0 && <div className="review-empty">Niente chiuso ancora questa settimana</div>}
+            {chiusi.map((t) => (
+              <div className="review-item" key={t.id}>
+                ✓ {t.titolo}
+              </div>
+            ))}
           </div>
         </Card>
         <Card title="Slittato" span={6}>
           <div className="review-list">
-            <div className="review-item">Richiamare Marco — da lunedì</div>
-            <div className="review-item">Rinnovo assicurazione — da 2 giorni</div>
+            {slittati.length === 0 && <div className="review-empty">Niente in ritardo</div>}
+            {slittati.map((t) => (
+              <div className="review-item" key={t.id}>
+                {t.titolo} {t.persona ? `— ${t.persona}` : ""}
+              </div>
+            ))}
           </div>
         </Card>
         <Card title="Le tre priorità della prossima settimana" span={12}>
-          <div className="review-priority"><div className="rp-num">1</div> Chiudere la proposta Meridian</div>
-          <div className="review-priority"><div className="rp-num">2</div> Richiamare Marco</div>
-          <div className="review-priority"><div className="rp-num">3</div> Prenotare visita di controllo</div>
+          {priorita.length === 0 && <div className="review-empty">Niente in sospeso</div>}
+          {priorita.map((t, i) => (
+            <div className="review-priority" key={t.id}>
+              <div className="rp-num">{i + 1}</div> {t.titolo}
+            </div>
+          ))}
         </Card>
       </Grid>
     </Screen>

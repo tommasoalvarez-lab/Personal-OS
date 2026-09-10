@@ -1,19 +1,30 @@
+import Link from "next/link";
 import { Card } from "@/components/Grid";
+import { compareISO, todayISO } from "@/lib/date";
 
-const BLOCKS = [
-  { title: "Preventivo Marco", age: "5g" },
-  { title: "Risposta commercialista", age: "3g" },
-  { title: "Rinnovo assicurazione", age: "2g" },
-];
+function daysSince(iso) {
+  const created = iso.slice(0, 10);
+  const today = todayISO();
+  const ms = new Date(today).getTime() - new Date(created).getTime();
+  return Math.max(0, Math.round(ms / 86400000));
+}
 
-export default function Blocchi() {
+// Un filtro sul CRM, niente dato nuovo: gli elementi in ritardo, ordinati
+// per anzianità. La domanda a cui risponde è "cosa è fermo, e per colpa di chi".
+export default function Blocchi({ tasks }) {
+  const bloccati = tasks
+    .filter((t) => t.fascia === "ritardo" && !t.dataCompletamento)
+    .sort((a, b) => compareISO(a.dataCreazione, b.dataCreazione));
+
   return (
     <Card id="id-blocchi" title="Blocchi" question="Cosa è fermo, e da quanto" span={4}>
-      {BLOCKS.map((b) => (
-        <div className="blocco-row" key={b.title}>
-          {b.title}
-          <span className="blocco-age">{b.age}</span>
-        </div>
+      {bloccati.length === 0 && <p className="card-question" style={{ marginBottom: 0 }}>Niente fermo</p>}
+      {bloccati.map((t) => (
+        <Link href={`/crm?open=${t.id}`} className="blocco-row" key={t.id}>
+          {t.titolo}
+          {t.persona && <span style={{ color: "var(--text-faint)", fontSize: 11 }}>{t.persona}</span>}
+          <span className="blocco-age">{daysSince(t.dataCreazione)}g</span>
+        </Link>
       ))}
     </Card>
   );
