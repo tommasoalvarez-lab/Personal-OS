@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PersonalOS — Percorso Locale
 
-## Getting Started
+Una dashboard personale: task, calendario, finanze, abitudini, e una memoria che impara chi sei.
+Costruita seguendo la guida *PersonalOS* di Giuseppe Castagna — Percorso Locale.
 
-First, run the development server:
+## Avvio
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Apri [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Variabili d'ambiente
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Crea `.env.local` nella radice del progetto (mai committato — è già in `.gitignore`):
 
-## Learn More
+```
+ANTHROPIC_API_KEY=sk-ant-...
+ANTHROPIC_MODEL=
+USER_TIMEZONE=Europe/Rome
+GOOGLE_CALENDAR_ICAL_URL=
+FINANCE_FILE_PATH=
+```
 
-To learn more about Next.js, take a look at the following resources:
+- `ANTHROPIC_API_KEY` — obbligatoria per smistamento, domande, stima pasti e polso finanziario.
+  Non è l'abbonamento a Claude Code: è una chiave API separata, con il suo credito, da
+  [console.anthropic.com](https://console.anthropic.com) → API Keys. **Metti un limite di spesa
+  mensile il giorno stesso in cui la generi.**
+- `ANTHROPIC_MODEL` — facoltativa, il codice ha un valore predefinito.
+- `USER_TIMEZONE` — facoltativa (default `Europe/Rome`). Decide quando "oggi" diventa "ieri".
+- `GOOGLE_CALENDAR_ICAL_URL` — facoltativa. L'indirizzo segreto del tuo calendario Google, da
+  Impostazioni calendario → "Indirizzo segreto in formato iCal". **Trattalo come una password.**
+- `FINANCE_FILE_PATH` — facoltativa. Percorso di un file `.xlsx` o `.csv` sul tuo disco con il
+  tuo patrimonio (un export del tuo foglio di calcolo).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Senza chiave Anthropic il sistema continua a funzionare: lo smistamento usa regole per parole
+chiave, le domande e le stime rispondono dicendo che manca la chiave, invece di inventare.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Dove stanno i dati
 
-## Deploy on Vercel
+Un solo file, `data/personalos.json`, creato automaticamente al primo avvio come copia di
+`data/seed.json` (che non va mai modificato a mano — è lo stato di partenza).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Backup**: fai tu, quando vuoi, una copia di `data/personalos.json` da qualche parte che
+  controlli (una cartella cloud, una chiavetta). Non c'è nessun backup automatico sul Percorso
+  Locale — è la voce 2 della Parte 9 della guida, per quando/se si passa al Percorso Completo.
+- **Reset**: cancella `data/personalos.json` e ricarica la pagina. Il sistema riparte pulito
+  dal seed, senza nessun'altra azione.
+- **Persistenza**: il file resta sul disco tra un riavvio e l'altro — non c'è nessun server da
+  tenere sveglio, i dati sono lì quando riapri.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Verifica dopo l'installazione (Parte 7 della guida)
+
+- [ ] La dashboard su `localhost:3000` mostra dati vuoti/di partenza (dal seed), non quelli di un mockup
+- [ ] Scrivi una frase nella barra di cattura → finisce nella scheda giusta (prova gli esempi
+      della guida: "ho pagato 340 euro di commercialista" → Finanze; "ricordati di chiamare
+      Marco" → CRM)
+- [ ] Chiudi il server, riavvialo, ricarica → i dati sono ancora lì
+- [ ] Cancella `data/personalos.json` e ricarica → si rigenera dal seed, pulito
+- [ ] Guarda il consumo sul [pannello Anthropic](https://console.anthropic.com) → i numeri hanno
+      senso, e non si muovono solo ricaricando una pagina (nessuna scheda chiama il modello al
+      caricamento — solo cattura, domande, o un pulsante di aggiornamento premuto da te)
+
+## Note tecniche
+
+- `xlsx` (per leggere il foglio delle finanze) ha due advisory di sicurezza note, senza fix
+  pubblicato su npm — vedi `CLAUDE.md` per il ragionamento sul perché è comunque accettabile qui
+  (legge solo il file locale che indichi tu, mai input di terzi).
+- Il parser del calendario (iCal) e quello del CRM sono scritti a mano in JavaScript puro,
+  senza librerie esterne — per i motivi spiegati nella guida (Parte 8).
