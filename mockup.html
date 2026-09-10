@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PersonalOS — Mockup</title>
+<style>
+  :root {
+    --bg: #f5f4f1;
+    --surface: #ffffff;
+    --border: #e6e3dd;
+    --text: #1c1b19;
+    --text-muted: #6f6b63;
+    --text-faint: #a29d93;
+    --accent: #2f6f4f;
+    --accent-soft: #e7f1eb;
+    --red: #b3492f;
+    --red-soft: #f8e9e4;
+    --orange: #b8791f;
+    --orange-soft: #f6ecd9;
+    --blue: #33587e;
+    --blue-soft: #e6edf4;
+    --radius: 14px;
+    --radius-sm: 9px;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app-shell {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ---- Barra in alto (diventerà TopBar) ---- */
+  .topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 56px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 20;
+  }
+  .topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+  }
+  .topbar-brand svg { width: 20px; height: 20px; color: var(--accent); }
+  .topbar-nav {
+    display: flex;
+    gap: 4px;
+  }
+  .topbar-nav button {
+    border: none;
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    color: var(--text-muted);
+    padding: 7px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .topbar-nav button.active {
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ---- Contenitore a griglia ---- */
+  .screen {
+    display: none;
+    padding: 76px 24px 100px;
+    max-width: 1080px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .screen.active { display: block; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 16px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+  }
+  .card h3 {
+    margin: 0 0 4px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-faint);
+    font-weight: 600;
+  }
+  .card .card-question {
+    margin: 0 0 14px;
+    font-size: 12px;
+    color: var(--text-faint);
+  }
+
+  /* colonne responsive semplici */
+  .col-4 { grid-column: span 4; }
+  .col-6 { grid-column: span 6; }
+  .col-8 { grid-column: span 8; }
+  .col-12 { grid-column: span 12; }
+  @media (max-width: 760px) {
+    .col-4, .col-6, .col-8, .col-12 { grid-column: span 12; }
+  }
+
+  /* ---- id-operator ---- */
+  #id-operator .op-row { display: flex; align-items: center; gap: 14px; }
+  #id-operator .op-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--accent-soft); color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px;
+  }
+  #id-operator .op-name { font-size: 16px; font-weight: 700; }
+  #id-operator .op-meta { font-size: 12.5px; color: var(--text-muted); }
+  #id-operator .op-streak {
+    margin-top: 12px; display: flex; align-items: center; gap: 6px;
+    font-size: 12.5px; color: var(--orange);
+  }
+
+  /* ---- id-session ---- */
+  #id-session .session-greeting { font-size: 20px; font-weight: 700; margin-bottom: 2px; }
+  #id-session .session-clock { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+  #id-session .session-task {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; border-top: 1px solid var(--border);
+    font-size: 13.5px; cursor: pointer;
+  }
+  #id-session .session-task:first-of-type { border-top: none; }
+  .badge {
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 999px; letter-spacing: 0.02em;
+  }
+  .badge-late { background: var(--red-soft); color: var(--red); }
+  .badge-today { background: var(--orange-soft); color: var(--orange); }
+  .session-task .task-person { margin-left: auto; color: var(--text-faint); font-size: 12px; }
+
+  /* ---- id-abitudini ---- */
+  #id-abitudini .habit-ring {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: conic-gradient(var(--accent) 0% 62%, var(--border) 62% 100%);
+    display: flex; align-items: center; justify-content: center;
+    float: right; margin-top: -46px;
+  }
+  #id-abitudini .habit-ring span {
+    width: 40px; height: 40px; border-radius: 50%; background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+  }
+  .habit-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-top: 1px solid var(--border);
+    font-size: 13.5px;
+  }
+  .habit-row:first-of-type { border-top: none; }
+  .habit-check {
+    width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .habit-check.done { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .habit-count { margin-left: auto; font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+
+  /* ---- id-calendario ---- */
+  #id-calendario .cal-strip { display: flex; gap: 6px; }
+  #id-calendario .cal-day {
+    flex: 1; text-align: center; padding: 8px 4px; border-radius: var(--radius-sm);
+    font-size: 11.5px; color: var(--text-muted); cursor: pointer;
+  }
+  #id-calendario .cal-day.today { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+  #id-calendario .cal-day .cal-daynum { font-size: 14px; font-weight: 700; color: var(--text); margin-top: 2px; }
+  #id-calendario .cal-day.today .cal-daynum { color: var(--accent); }
+  #id-calendario .cal-events { margin-top: 14px; }
+  #id-calendario .cal-event { display: flex; gap: 10px; font-size: 13px; padding: 6px 0; }
+  #id-calendario .cal-event time { font-family: var(--font-mono); color: var(--text-faint); font-size: 12px; width: 42px; flex-shrink: 0; }
+
+  /* ---- id-blocchi ---- */
+  .blocco-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; font-size: 13px; border-top: 1px solid var(--border); }
+  .blocco-row:first-of-type { border-top: none; }
+  .blocco-row .blocco-age { margin-left: auto; color: var(--red); font-family: var(--font-mono); font-size: 11.5px; }
+
+  /* ---- id-polso ---- */
+  #id-polso .polso-amount { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
+  #id-polso .polso-delta { font-size: 12.5px; margin-top: 2px; }
+  #id-polso .polso-delta.up { color: var(--accent); }
+  #id-polso .polso-delta.down { color: var(--red); }
+  #id-polso .polso-cats { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
+  #id-polso .polso-cat { display: flex; justify-content: space-between; font-size: 12.5px; }
+  #id-polso .polso-cat span:last-child { font-family: var(--font-mono); }
+
+  /* ---- id-nutrizione ---- */
+  #id-nutrizione .macro-bar { height: 6px; border-radius: 999px; background: var(--border); overflow: hidden; margin-top: 6px; }
+  #id-nutrizione .macro-bar > div { height: 100%; background: var(--accent); }
+  #id-nutrizione .macro-row { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-muted); margin-top: 4px; }
+  #id-nutrizione .meal-row { display: flex; align-items: center; gap: 8px; font-size: 12.5px; padding: 6px 0; border-top: 1px solid var(--border); }
+  #id-nutrizione .meal-row:first-of-type { border-top: none; }
+  #id-nutrizione .meal-row time { font-family: var(--font-mono); color: var(--text-faint); width: 42px; font-size: 11.5px; }
+  #id-nutrizione .meal-kcal { margin-left: auto; font-family: var(--font-mono); font-size: 12px; }
+
+  /* ---- id-salute ---- */
+  #id-salute .salute-chart { display: flex; align-items: flex-end; gap: 3px; height: 60px; }
+  #id-salute .salute-bar { flex: 1; background: var(--blue-soft); border-radius: 3px 3px 0 0; }
+  #id-salute .salute-caption { font-size: 11.5px; color: var(--text-faint); margin-top: 8px; }
+
+  /* ---- id-obiettivi ---- */
+  .goal-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; font-size: 13px; border-top: 1px solid var(--border); }
+  .goal-row:first-of-type { border-top: none; }
+  .goal-progress { margin-left: auto; font-family: var(--font-mono); font-size: 11.5px; color: var(--text-muted); }
+  .goal-row.done .goal-name { text-decoration: line-through; color: var(--text-faint); }
+
+  /* ---- CRM ---- */
+  .crm-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .crm-header h2 { margin: 0; font-size: 20px; }
+  .crm-views { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 3px; }
+  .crm-views button { border: none; background: transparent; font: inherit; font-size: 12.5px; padding: 6px 14px; border-radius: 999px; cursor: pointer; color: var(--text-muted); }
+  .crm-views button.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .crm-search { width: 100%; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); font: inherit; font-size: 13px; margin-bottom: 18px; background: var(--surface); }
+
+  .kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  @media (max-width: 900px) { .kanban { grid-template-columns: repeat(2, 1fr); } }
+  .kanban-col { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; min-height: 200px; }
+  .kanban-col h4 { margin: 0 0 10px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); display: flex; justify-content: space-between; }
+  .kanban-card {
+    background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 10px 12px; margin-bottom: 8px; cursor: grab; font-size: 12.5px;
+  }
+  .kanban-card .kc-title { font-weight: 600; margin-bottom: 4px; }
+  .kanban-card .kc-meta { display: flex; align-items: center; gap: 6px; color: var(--text-faint); font-size: 11px; }
+  .temp-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .temp-caldo { background: var(--red); }
+  .temp-tiepido { background: var(--orange); }
+  .temp-freddo { background: var(--blue); }
+
+  /* ---- Finanze ---- */
+  .fin-hero { display: flex; align-items: baseline; gap: 16px; }
+  .fin-hero .fin-value { font-size: 40px; font-weight: 700; letter-spacing: -0.02em; }
+  .fin-breakdown { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+  .fin-cat-row { display: flex; align-items: center; gap: 10px; font-size: 13.5px; }
+  .fin-cat-bar { flex: 1; height: 8px; border-radius: 999px; background: var(--border); overflow: hidden; }
+  .fin-cat-bar > div { height: 100%; }
+  .fin-history-row { display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--border); font-size: 13px; }
+  .fin-history-row:first-of-type { border-top: none; }
+
+  /* ---- Review ---- */
+  .review-list { display: flex; flex-direction: column; gap: 2px; }
+  .review-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-top: 1px solid var(--border); font-size: 13.5px; }
+  .review-item:first-of-type { border-top: none; }
+  .review-priority { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--border); font-size: 14px; }
+  .review-priority:first-of-type { border-top: none; }
+  .review-priority .rp-num {
+    width: 22px; height: 22px; border-radius: 50%; background: var(--accent-soft); color: var(--accent);
+    display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0;
+  }
+
+  /* ---- Barra di cattura (fissa in fondo) ---- */
+  .capture-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--surface); border-top: 1px solid var(--border);
+    padding: 12px 20px; display: flex; align-items: center; gap: 10px;
+    z-index: 20;
+  }
+  .capture-bar input {
+    flex: 1; border: 1px solid var(--border); border-radius: 999px;
+    padding: 11px 18px; font: inherit; font-size: 13.5px; background: var(--bg);
+  }
+  .capture-mic, .capture-send {
+    width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--surface); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--text-muted); flex-shrink: 0;
+  }
+  .capture-status { font-size: 11px; color: var(--text-faint); position: absolute; top: -18px; left: 20px; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <!-- ===== id-topbar ===== -->
+  <div class="topbar" id="id-topbar">
+    <div class="topbar-brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      PersonalOS
+    </div>
+    <div class="topbar-nav">
+      <button class="active" data-screen="home">Home</button>
+      <button data-screen="crm">CRM</button>
+      <button data-screen="finanze">Finanze</button>
+      <button data-screen="review">Review</button>
+    </div>
+  </div>
+
+  <!-- ===== SCHERMATA: HOME ===== -->
+  <div class="screen active" id="screen-home">
+    <div class="grid">
+
+      <div class="card col-4" id="id-operator">
+        <h3>Operator</h3>
+        <div class="op-row">
+          <div class="op-avatar">TA</div>
+          <div>
+            <div class="op-name">Tommaso</div>
+            <div class="op-meta">Consulente · Milano</div>
+          </div>
+        </div>
+        <div class="op-meta" style="margin-top:12px;">Focus di oggi: <strong>chiudere la proposta Meridian</strong></div>
+        <div class="op-streak">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c2 4-2 5-2 9a4 4 0 0 0 8 0c0-1-.5-2-1-3 1 0 3 2 3 6a8 8 0 1 1-16 0c0-5 4-6 4-9 0-1 1-2 4-3z"/></svg>
+          6 giorni di fila con almeno un'abitudine
+        </div>
+      </div>
+
+      <div class="card col-8" id="id-session">
+        <h3>Session</h3>
+        <div class="session-greeting">Buongiorno, Tommaso</div>
+        <div class="session-clock">09:24 · lunedì 8 settembre</div>
+        <div class="session-task">
+          <span class="badge badge-late">In ritardo</span>
+          <span>Richiamare Marco per il preventivo</span>
+          <span class="task-person">Marco Bianchi</span>
+        </div>
+        <div class="session-task">
+          <span class="badge badge-today">Oggi</span>
+          <span>Inviare fattura commercialista</span>
+          <span class="task-person">—</span>
+        </div>
+        <div class="session-task">
+          <span class="badge badge-today">Oggi</span>
+          <span>Confermare appuntamento dentista</span>
+          <span class="task-person">—</span>
+        </div>
+      </div>
+
+      <div class="card col-4" id="id-abitudini">
+        <h3>Abitudini</h3>
+        <p class="card-question">A che punto sono oggi</p>
+        <div class="habit-ring"><span>62%</span></div>
+        <div class="habit-row"><div class="habit-check done">✓</div> Allenamento <span class="habit-count">fatto</span></div>
+        <div class="habit-row"><div class="habit-check done">✓</div> Lettura 20&nbsp;min <span class="habit-count">fatto</span></div>
+        <div class="habit-row"><div class="habit-check">&nbsp;</div> Acqua <span class="habit-count">5/8</span></div>
+        <div class="habit-row"><div class="habit-check">&nbsp;</div> Deep work <span class="habit-count">1/3</span></div>
+      </div>
+
+      <div class="card col-8" id="id-calendario">
+        <h3>Calendario</h3>
+        <p class="card-question">Cosa mi aspetta</p>
+        <div class="cal-strip">
+          <div class="cal-day">Lun<div class="cal-daynum">8</div></div>
+          <div class="cal-day today">Mar<div class="cal-daynum">9</div></div>
+          <div class="cal-day">Mer<div class="cal-daynum">10</div></div>
+          <div class="cal-day">Gio<div class="cal-daynum">11</div></div>
+          <div class="cal-day">Ven<div class="cal-daynum">12</div></div>
+          <div class="cal-day">Sab<div class="cal-daynum">13</div></div>
+          <div class="cal-day">Dom<div class="cal-daynum">14</div></div>
+        </div>
+        <div class="cal-events">
+          <div class="cal-event"><time>10:00</time> Call con Meridian</div>
+          <div class="cal-event"><time>13:00</time> Pranzo con Elena</div>
+          <div class="cal-event"><time>18:30</time> Palestra</div>
+        </div>
+      </div>
+
+      <div class="card col-4" id="id-blocchi">
+        <h3>Blocchi</h3>
+        <p class="card-question">Cosa è fermo, e da quanto</p>
+        <div class="blocco-row">Preventivo Marco <span class="blocco-age">5g</span></div>
+        <div class="blocco-row">Risposta commercialista <span class="blocco-age">3g</span></div>
+        <div class="blocco-row">Rinnovo assicurazione <span class="blocco-age">2g</span></div>
+      </div>
+
+      <div class="card col-4" id="id-polso">
+        <h3>Polso finanziario</h3>
+        <p class="card-question">Sto salendo o scendendo</p>
+        <div class="polso-amount">€ 42.150</div>
+        <div class="polso-delta up">▲ +€ 380 negli ultimi 30 giorni</div>
+        <div class="polso-cats">
+          <div class="polso-cat"><span>Liquidità</span><span>€ 8.200</span></div>
+          <div class="polso-cat"><span>Investito</span><span>€ 35.400</span></div>
+          <div class="polso-cat"><span>Debito</span><span>-€ 1.450</span></div>
+        </div>
+      </div>
+
+      <div class="card col-4" id="id-nutrizione">
+        <h3>Nutrizione</h3>
+        <p class="card-question">Quanto ho mangiato oggi</p>
+        <div style="display:flex; justify-content:space-between; font-size:13px;">
+          <span>1.420 / 2.200 kcal</span>
+        </div>
+        <div class="macro-bar"><div style="width:64%"></div></div>
+        <div class="macro-row"><span>P 78g</span><span>C 140g</span><span>G 42g</span></div>
+        <div class="meal-row"><time>08:10</time> Yogurt e granola <span class="meal-kcal">320</span></div>
+        <div class="meal-row"><time>13:05</time> Pollo, riso, verdure <span class="meal-kcal">610</span></div>
+        <div class="meal-row"><time>16:40</time> Mela <span class="meal-kcal">90</span></div>
+      </div>
+
+      <div class="card col-4" id="id-salute">
+        <h3>Salute</h3>
+        <p class="card-question">Come sta andando il mese</p>
+        <div class="salute-chart">
+          <div class="salute-bar" style="height:40%"></div>
+          <div class="salute-bar" style="height:55%"></div>
+          <div class="salute-bar" style="height:30%"></div>
+          <div class="salute-bar" style="height:70%"></div>
+          <div class="salute-bar" style="height:60%"></div>
+          <div class="salute-bar" style="height:80%"></div>
+          <div class="salute-bar" style="height:65%"></div>
+        </div>
+        <div class="salute-caption">Media 1.980 kcal · 26 giorni registrati</div>
+      </div>
+
+      <div class="card col-4" id="id-obiettivi">
+        <h3>Obiettivi</h3>
+        <p class="card-question">Cosa mi ero promesso</p>
+        <div class="goal-row done"><div class="habit-check done">✓</div><span class="goal-name">Chiudere pratica IVA</span></div>
+        <div class="goal-row"><div class="habit-check">&nbsp;</div><span class="goal-name">3 allenamenti</span><span class="goal-progress">2/3</span></div>
+        <div class="goal-row"><div class="habit-check">&nbsp;</div><span class="goal-name">Leggere 2 capitoli</span><span class="goal-progress">1/2</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== SCHERMATA: CRM ===== -->
+  <div class="screen" id="screen-crm">
+    <div class="crm-header">
+      <h2>CRM</h2>
+      <div class="crm-views">
+        <button class="active">Kanban</button>
+        <button>Per persona</button>
+        <button>Ricerca</button>
+      </div>
+    </div>
+    <input class="crm-search" placeholder="Cosa posso chiudere in dieci minuti mentre aspetto il treno?">
+
+    <div class="kanban">
+      <div class="kanban-col">
+        <h4>In ritardo <span>1</span></h4>
+        <div class="kanban-card">
+          <div class="kc-title">Richiamare Marco</div>
+          <div class="kc-meta"><span class="temp-dot temp-caldo"></span> Marco Bianchi · #preventivo</div>
+        </div>
+      </div>
+      <div class="kanban-col">
+        <h4>Oggi <span>2</span></h4>
+        <div class="kanban-card">
+          <div class="kc-title">Inviare fattura commercialista</div>
+          <div class="kc-meta"><span class="temp-dot temp-tiepido"></span> #finanze</div>
+        </div>
+        <div class="kanban-card">
+          <div class="kc-title">Confermare dentista</div>
+          <div class="kc-meta"><span class="temp-dot temp-freddo"></span> #salute</div>
+        </div>
+      </div>
+      <div class="kanban-col">
+        <h4>Questa settimana <span>2</span></h4>
+        <div class="kanban-card">
+          <div class="kc-title">Rinnovo assicurazione auto</div>
+          <div class="kc-meta"><span class="temp-dot temp-tiepido"></span> #casa</div>
+        </div>
+        <div class="kanban-card">
+          <div class="kc-title">Preventivo Elena — sito</div>
+          <div class="kc-meta"><span class="temp-dot temp-freddo"></span> Elena Rossi</div>
+        </div>
+      </div>
+      <div class="kanban-col">
+        <h4>Più avanti <span>1</span></h4>
+        <div class="kanban-card">
+          <div class="kc-title">Pianificare vacanza estate</div>
+          <div class="kc-meta"><span class="temp-dot temp-freddo"></span> #personale</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SCHERMATA: FINANZE ===== -->
+  <div class="screen" id="screen-finanze">
+    <div class="grid">
+      <div class="card col-12">
+        <h3>Patrimonio</h3>
+        <div class="fin-hero">
+          <div class="fin-value">€ 42.150</div>
+          <div class="polso-delta up">▲ +€ 380 (30gg)</div>
+        </div>
+        <div class="fin-breakdown">
+          <div class="fin-cat-row"><span style="width:90px;">Liquidità</span><div class="fin-cat-bar"><div style="width:20%; background:var(--blue);"></div></div><span>€ 8.200</span></div>
+          <div class="fin-cat-row"><span style="width:90px;">Investito</span><div class="fin-cat-bar"><div style="width:84%; background:var(--accent);"></div></div><span>€ 35.400</span></div>
+          <div class="fin-cat-row"><span style="width:90px;">Debito</span><div class="fin-cat-bar"><div style="width:4%; background:var(--red);"></div></div><span>-€ 1.450</span></div>
+        </div>
+      </div>
+      <div class="card col-12">
+        <h3>Storico</h3>
+        <div class="fin-history-row"><span>Oggi</span><span>€ 42.150</span></div>
+        <div class="fin-history-row"><span>30 giorni fa</span><span>€ 41.770</span></div>
+        <div class="fin-history-row"><span>1 anno fa</span><span>€ 33.900</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SCHERMATA: REVIEW ===== -->
+  <div class="screen" id="screen-review">
+    <div class="grid">
+      <div class="card col-6">
+        <h3>Chiuso questa settimana</h3>
+        <div class="review-list">
+          <div class="review-item">✓ Preventivo Studio Bellini inviato</div>
+          <div class="review-item">✓ Bolletta luce pagata</div>
+          <div class="review-item">✓ Chiamata con commercialista fatta</div>
+        </div>
+      </div>
+      <div class="card col-6">
+        <h3>Slittato</h3>
+        <div class="review-list">
+          <div class="review-item">Richiamare Marco — da lunedì</div>
+          <div class="review-item">Rinnovo assicurazione — da 2 giorni</div>
+        </div>
+      </div>
+      <div class="card col-12">
+        <h3>Le tre priorità della prossima settimana</h3>
+        <div class="review-priority"><div class="rp-num">1</div> Chiudere la proposta Meridian</div>
+        <div class="review-priority"><div class="rp-num">2</div> Richiamare Marco</div>
+        <div class="review-priority"><div class="rp-num">3</div> Prenotare visita di controllo</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== Barra di cattura ===== -->
+<div class="capture-bar">
+  <div class="capture-status">a riposo</div>
+  <button class="capture-mic" aria-label="Registra">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 19v3"/></svg>
+  </button>
+  <input type="text" placeholder="Scrivi o parla — task, persone, finanze, note...">
+  <button class="capture-send" aria-label="Invia">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+  </button>
+</div>
+
+<script>
+  document.querySelectorAll('.topbar-nav button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.topbar-nav button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-' + btn.dataset.screen).classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
