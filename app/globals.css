@@ -327,6 +327,9 @@ a {
 #id-calendario .cal-day.today .cal-daynum {
   color: var(--accent);
 }
+#id-calendario .cal-day.active:not(.today) {
+  background: var(--border);
+}
 #id-calendario .cal-events {
   margin-top: 14px;
 }

@@ -9,7 +9,7 @@ import Nutrizione from "@/components/cards/Nutrizione";
 import Salute from "@/components/cards/Salute";
 import Obiettivi from "@/components/cards/Obiettivi";
 
-export default function HomeScreen({ state, timezone, today }) {
+export default function HomeScreen({ state, timezone, today, calendar, weekDates }) {
   return (
     <Screen>
       <Grid>
@@ -20,7 +20,13 @@ export default function HomeScreen({ state, timezone, today }) {
           log={state.logGiornalieri[today]}
           today={today}
         />
-        <Calendario timezone={timezone} />
+        <Calendario
+          timezone={timezone}
+          today={today}
+          weekDates={weekDates}
+          events={calendar.events}
+          connected={calendar.connected}
+        />
         <Blocchi tasks={state.task} />
         <Polso financeSnapshots={state.financeSnapshots} />
         <Nutrizione
