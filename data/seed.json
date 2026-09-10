@@ -1,0 +1,26 @@
+{
+  "profilo": {
+    "nome": "Tommaso",
+    "ruolo": "Consulente",
+    "citta": "Milano",
+    "focusDelGiorno": "Chiudere la proposta Meridian",
+    "abitudini": [
+      { "id": "allenamento", "nome": "Allenamento", "tipo": "spunta" },
+      { "id": "lettura", "nome": "Lettura 20 min", "tipo": "spunta" },
+      { "id": "acqua", "nome": "Acqua", "tipo": "contatore", "obiettivo": 8 },
+      { "id": "deepwork", "nome": "Deep work", "tipo": "contatore", "obiettivo": 3 }
+    ],
+    "obiettivoCalorico": 2200
+  },
+  "task": [],
+  "persone": [],
+  "catture": [],
+  "memoria": [],
+  "obiettivi": {
+    "settimana": [],
+    "mese": []
+  },
+  "logGiornalieri": {},
+  "registro": [],
+  "financeSnapshots": []
+}

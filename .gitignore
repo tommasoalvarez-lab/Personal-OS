@@ -33,6 +33,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# PersonalOS: la copia di lavoro dei dati, mai il seed
+/data/personalos.json
+
 # vercel
 .vercel
 
