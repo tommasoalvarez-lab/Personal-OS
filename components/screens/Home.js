@@ -9,19 +9,27 @@ import Nutrizione from "@/components/cards/Nutrizione";
 import Salute from "@/components/cards/Salute";
 import Obiettivi from "@/components/cards/Obiettivi";
 
-export default function HomeScreen() {
+export default function HomeScreen({ state, timezone, today }) {
   return (
     <Screen>
       <Grid>
-        <Operator />
-        <Session />
-        <Abitudini />
-        <Calendario />
-        <Blocchi />
-        <Polso />
-        <Nutrizione />
-        <Salute />
-        <Obiettivi />
+        <Operator profilo={state.profilo} logGiornalieri={state.logGiornalieri} today={today} />
+        <Session nome={state.profilo.nome} timezone={timezone} tasks={state.task} />
+        <Abitudini
+          abitudini={state.profilo.abitudini}
+          log={state.logGiornalieri[today]}
+          today={today}
+        />
+        <Calendario timezone={timezone} />
+        <Blocchi tasks={state.task} />
+        <Polso financeSnapshots={state.financeSnapshots} />
+        <Nutrizione
+          log={state.logGiornalieri[today]}
+          obiettivoCalorico={state.profilo.obiettivoCalorico}
+          today={today}
+        />
+        <Salute logGiornalieri={state.logGiornalieri} today={today} />
+        <Obiettivi obiettivi={state.obiettivi} />
       </Grid>
     </Screen>
   );
