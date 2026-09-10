@@ -28,7 +28,7 @@ export default function HomeScreen({ state, timezone, today, calendar, weekDates
           connected={calendar.connected}
         />
         <Blocchi tasks={state.task} />
-        <Polso financeSnapshots={state.financeSnapshots} />
+        <Polso financeSnapshots={state.financeSnapshots} timezone={timezone} />
         <Nutrizione
           log={state.logGiornalieri[today]}
           obiettivoCalorico={state.profilo.obiettivoCalorico}
